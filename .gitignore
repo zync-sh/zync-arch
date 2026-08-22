@@ -1,14 +1,45 @@
-*.tar
-*.tar.*
+# Built packages / pacman DB (published on gh-pages by CI, not on main)
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.pkg.tar.gz
+*.db
+*.db.tar.zst
+*.db.tar.gz
+*.files
+*.files.tar.zst
+*.files.tar.gz
+*.sig
+
+# makepkg trees
+pkg/
+src/
+*.log
+*.log.*
+
+# Other package formats / leftovers
+*.deb
+*.rpm
+*.AppImage
+*.zip
 *.jar
 *.exe
 *.msi
-*.deb
-*.zip
 *.tgz
-*.log
-*.log.*
-*.sig
+*.tar
+*.tar.gz
+*.tar.zst
 
-pkg/
-src/
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
