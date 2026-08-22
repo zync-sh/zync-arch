@@ -3,20 +3,30 @@
 Official **Arch Linux / pacman** repository for [Zync](https://github.com/zync-sh/zync).
 
 Application source and releases live in **`zync-sh/zync`**.  
-This repo only hosts the pacman package database and `.pkg.tar.zst` files (GitHub Pages).
+This repo only hosts the signed pacman package database and `.pkg.tar.zst` files (GitHub Pages).
+
+Packages are GPG-signed with the same packaging key as the APT repo (`releases@zync.thesudoer.in`).
 
 ## Install
 
 ```bash
+# 1. Import and locally sign the Zync packaging key
+curl -fsSL https://arch.zync.thesudoer.in/key.gpg -o /tmp/zync.gpg
+sudo pacman-key --add /tmp/zync.gpg
+FPR="$(gpg --show-keys --with-colons /tmp/zync.gpg 2>/dev/null | awk -F: '/^fpr:/ { print $10; exit }')"
+sudo pacman-key --lsign-key "$FPR"
+
+# 2. Add the repo
 sudo tee /etc/pacman.d/zync.conf >/dev/null <<'EOF'
 [zync]
-SigLevel = Optional TrustAll
+SigLevel = Required TrustedOnly
 Server = https://arch.zync.thesudoer.in/$arch
 EOF
 
 grep -q 'pacman.d/zync.conf' /etc/pacman.conf || \
   echo 'Include = /etc/pacman.d/zync.conf' | sudo tee -a /etc/pacman.conf
 
+# 3. Install
 sudo pacman -Syu zync
 ```
 
@@ -29,25 +39,21 @@ Updates go through pacman (not the in-app AppImage updater).
 
 ```text
 CNAME                 → arch.zync.thesudoer.in
+key.gpg               → public packaging key
 x86_64/
-  zync-<ver>-1-x86_64.pkg.tar.zst
-  zync.db
+  zync-*-x86_64.pkg.tar.zst
+  zync-*-x86_64.pkg.tar.zst.sig
   zync.db.tar.zst
-  zync.files
-  zync.files.tar.zst
+  zync.db.tar.zst.sig
+  …
 ```
 
 Published automatically from the `zync` release workflow after each tagged release.
 
 ## One-time GitHub setup
 
-1. **Settings → Pages**
-   - Source: **Deploy from a branch**
-   - Branch: **`gh-pages`** / `/ (root)`
-2. **Custom domain:** `arch.zync.thesudoer.in`
-3. DNS: `CNAME arch` → `gajendraxdev.github.io` (or your Pages target), Proxied optional
-4. Ensure the release PAT (`RELEASE_TOKEN` in `zync`) can push to this repo
+See [docs/PAGES.md](./docs/PAGES.md).
 
 ## License
 
-MIT — same as Zync. The packaged application is MIT; see [zync/LICENSE](https://github.com/zync-sh/zync/blob/main/LICENSE).
+MIT — same as Zync. See [zync/LICENSE](https://github.com/zync-sh/zync/blob/main/LICENSE).
